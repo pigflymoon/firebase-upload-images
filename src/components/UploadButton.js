@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {withStyles} from 'material-ui/styles';
 import Button from 'material-ui/Button';
@@ -16,7 +16,7 @@ const styles = theme => ({
     },
 });
 
-class UploadButton extends React.Component {
+class UploadButton extends Component {
     constructor(props) {
         super(props);
         this.state = {

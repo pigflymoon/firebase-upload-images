@@ -1,21 +1,19 @@
-import React from 'react';
+import React, {Component} from 'react';
+import {
+    BrowserRouter as Router,
+    Route,
+    Link
+} from 'react-router-dom'
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import {withStyles} from 'material-ui/styles';
-import Drawer from 'material-ui/Drawer';
-import AppBar from 'material-ui/AppBar';
-import Toolbar from 'material-ui/Toolbar';
-import List from 'material-ui/List';
-import Typography from 'material-ui/Typography';
-import Divider from 'material-ui/Divider';
-import Button from 'material-ui/Button';
-import FileUpload from 'material-ui-icons/FileUpload';
-import AddToPhotos from 'material-ui-icons/AddToPhotos';
-import {mailFolderListItems, otherMailFolderListItems} from './tileData';
-import saveImage from '../utils/saveImage';
-import firebaseApp from '../config/FirebaseConfig';
-
 import withRoot from '../withRoot';
+import {ListItem, ListItemIcon} from 'material-ui/List';
+import InboxIcon from 'material-ui-icons/MoveToInbox';
+import Drawer from 'material-ui/Drawer';
+import Login from './Login';
+import Divider from 'material-ui/Divider';
+
 const drawerWidth = 240;
 
 const styles = theme => ({
@@ -69,122 +67,106 @@ const styles = theme => ({
         marginLeft: theme.spacing.unit,
     },
 });
-
-class Index extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            file: null,
-            fileName: '',
-        }
-    }
-
-    handleAddImage = (e) => {
-        console.log('filename is :', e.target.files[0].name)
-        this.setState({file: e.target.files[0]});
-    }
-
-    handleUpload = (e) => {
-        e.preventDefault();
-        console.log('submit', this.state.file);
-        this.fileUpload(this.state.file);
-    }
-
-    fileUpload = (file) => {
-
-        var imagesRef = firebaseApp.storage().ref().child('images');
-        var uploadImagesRef = firebaseApp.database().ref().child("uploadImages");
-        var newImageKey = uploadImagesRef.push().key;
-
-        console.log('imagesRef', firebaseApp.storage().ref())
-        // var newPostKey = firebaseApp.database().ref().child('images').push().key;
-
-        if (file) {
-            var filename = (file.name).match(/^.*?([^\\/.]*)[^\\/]*$/)[1] + '_poster';
-
-            var task = saveImage(file, filename, imagesRef)
-            console.log('filename is ', filename);
-            this.setState({fileName: filename})
-            task.then(function (snapshot) {
-                var downloadUrl = task.snapshot.downloadURL;
-
-                uploadImagesRef.child(newImageKey + '_image').set({
-                    downloadUrl: downloadUrl,
-                    Name: filename
-                });
-
-                console.log('download url is: ', downloadUrl)
-            })
-                .catch(function (error) {
-                    console.error('error', error);
-                });
-        } else {
-            console.log('no file')
-        }
-
-    }
-
+class Index extends Component {
     render() {
         const {classes} = this.props;
-        const {anchor} = this.state;
 
 
         return (
-            <div className={classes.root}>
+            <Router>
 
-                <div className={classes.appFrame}>
-                    <AppBar className={classNames(classes.appBar, classes[`appBar-left`])}>
-                        <Toolbar>
-                            <Typography variant="title" color="inherit" noWrap>
-                                Permanent drawer
-                            </Typography>
-                        </Toolbar>
-                    </AppBar>
+                <div className={classes.root}>
                     <Drawer
                         variant="permanent"
                         classes={{
                             paper: classes.drawerPaper,
                         }}
-                        anchor={anchor}
+
                     >
-                        <div className={classes.drawerHeader} />
+                        <div className={classes.drawerHeader}/>
                         <Divider />
-                        <List>{mailFolderListItems}</List>
-                        <Divider />
-                        <List>{otherMailFolderListItems}</List>
+                        <div>
+                            <ListItem button>
+                                <ListItemIcon>
+                                    <InboxIcon />
+                                </ListItemIcon>
+                                <Link to="/">About</Link>
+                            </ListItem>
+                            <ListItem button>
+                                <ListItemIcon>
+                                    <InboxIcon />
+                                </ListItemIcon>
+                                <Link to="/">Login</Link>
+                            </ListItem>
+                            <ListItem button>
+                                <ListItemIcon>
+                                    <InboxIcon />
+                                </ListItemIcon>
+                                <Link to="/">Topics</Link>
+                            </ListItem>
+
+                            <hr/>
+
+                            <Route exact path="/" component={About}/>
+                            <Route path="/about" component={Login}/>
+                            <Route path="/topics" component={Topics}/>
+                        </div>
+
                     </Drawer>
-                    <main className={classes.content}>
-                        <input
-                            accept="image/*"
-                            className={classes.input}
-                            id="raised-button-file"
-                            multiple
-                            type="file"
-                            onChange={(e) => this.handleAddImage(e)}
-                        />
-                        <label htmlFor="raised-button-file">
-                            <Button component="span" className={classes.button}  color="default">
-                                Choose Image
-                                <AddToPhotos className={classes.rightIcon}/>
-                            </Button>
-                        </label>
-                        <label htmlFor="raised-button-file">
-                            <Button type="submit" onClick={(e) => this.handleUpload(e)} className={classes.button}
-                                    color="default">
-                                Upload
-                                <FileUpload className={classes.rightIcon}/>
-                            </Button>
-                        </label>
-                        <Typography>{'You think water moves fast? You should see ice.'}</Typography>
-                    </main>
+                    <main></main>
+
                 </div>
-            </div>
-        );
+            </Router>
+        )
     }
 }
 
-Index.propTypes = {
-    classes: PropTypes.object.isRequired,
-};
+
+const Home = () => (
+    <div>
+        <h2>Home</h2>
+    </div>
+)
+
+const About = () => (
+    <div>
+        <h2>About</h2>
+    </div>
+)
+
+const Topics = ({match}) => (
+    <div>
+        <h2>Topics</h2>
+        <ul>
+            <li>
+                <Link to={`${match.url}/rendering`}>
+                    Rendering with React
+                </Link>
+            </li>
+            <li>
+                <Link to={`${match.url}/components`}>
+                    Components
+                </Link>
+            </li>
+            <li>
+                <Link to={`${match.url}/props-v-state`}>
+                    Props v. State
+                </Link>
+            </li>
+        </ul>
+
+        <Route path={`${match.url}/:topicId`} component={Topic}/>
+        <Route exact path={match.url} render={() => (
+            <h3>Please select a topic.</h3>
+        )}/>
+    </div>
+)
+
+const Topic = ({match}) => (
+    <div>
+        <h3>{match.params.topicId}</h3>
+    </div>
+)
 
 export default withRoot(withStyles(styles)(Index));
+// export default BasicExample
