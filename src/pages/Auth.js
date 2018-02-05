@@ -8,10 +8,7 @@ import {
 } from 'react-router-dom'
 import {withStyles} from 'material-ui/styles';
 import withRoot from '../withRoot';
-const drawerWidth = 240;
-
-////////////////////////////////////
-// //////////////////////
+////////////////////////////////////////////////////////////
 // 1. Click the public page
 // 2. Click the protected page
 // 3. Log in
@@ -160,7 +157,4 @@ class Login extends React.Component {
     }
 }
 
-
-
-export default withRoot(withStyles(styles)(Index));
-// export default BasicExample
+export default Auth
